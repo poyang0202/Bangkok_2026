@@ -146,15 +146,20 @@ body::after{
 .geo-refresh:active{box-shadow:none;transform:translate(2px,2px)}
 .rest-list{padding:4px 16px 32px;display:flex;flex-direction:column;gap:10px}
 .rc{background:var(--bg2);border:2px solid var(--bd2);box-shadow:3px 3px 0 rgba(63,240,236,.18);padding:12px 14px;
-  display:flex;align-items:center;justify-content:space-between;gap:10px}
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
 .rc-name{font-size:15px;color:var(--text);margin-bottom:5px}
 .rc-cat{font-size:11px;color:var(--cyan);margin-bottom:4px;font-family:var(--font-en)}
 .rc-hours{font-size:12px;color:var(--t3)}
 .rc-closed{font-size:12px;color:var(--pink);margin-top:2px}
 .rc-dist{font-size:11px;color:var(--green);margin-top:5px;font-family:var(--font-en)}
-.rc-map{flex-shrink:0;background:var(--bg4);border:2px solid var(--pink);box-shadow:2px 2px 0 var(--pink);
-  padding:8px 10px;text-decoration:none;font-size:11px;color:var(--pink);white-space:nowrap;font-family:var(--font-en)}
+.rc-actions{flex-shrink:0;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.rc-map{background:var(--bg4);border:2px solid var(--pink);box-shadow:2px 2px 0 var(--pink);
+  padding:6px 10px;text-decoration:none;font-size:11px;color:var(--pink);white-space:nowrap;
+  font-family:var(--font-en);text-align:center;cursor:pointer}
 .rc-map:active{box-shadow:none;transform:translate(2px,2px)}
+.rc-map.apple{border-color:var(--cyan);box-shadow:2px 2px 0 var(--cyan);color:var(--cyan)}
+.rc-map.copy{border-color:var(--t3);box-shadow:2px 2px 0 var(--t3);color:var(--t3)}
+.rc-map.copy.copied{border-color:var(--green);box-shadow:2px 2px 0 var(--green);color:var(--green)}
 
 /* ---- 清單 ---- */
 .chk-page{padding:14px 16px 32px}
@@ -449,6 +454,10 @@ function mapUrl(name){
   // 在手機瀏覽器/PWA 內嵌環境中常見的跳轉失敗問題
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + " Bangkok Thailand")}`;
 }
+function appleMapUrl(name){
+  // Apple 地圖的通用連結格式,作為 Google 地圖 App 端偶發 bug 的備援選項
+  return `https://maps.apple.com/?q=${encodeURIComponent(name + " Bangkok Thailand")}`;
+}
 
 // ---- 距離計算:定位 + 地理編碼(OpenStreetMap Nominatim,免金鑰)----
 const GEOCODE_CACHE_KEY = "bkk2026_geocode_cache";
@@ -550,7 +559,11 @@ function renderRestaurants(filter=""){
         <div class="rc-closed">🚫 ${r.closed}</div>
         <div class="rc-dist" id="rc-dist-${idx}">📍 計算距離中...</div>
       </div>
-      <a class="rc-map" href="${mapUrl(r.name)}" target="_blank" rel="noopener">地圖</a>
+      <div class="rc-actions">
+        <a class="rc-map" href="${mapUrl(r.name)}" target="_blank" rel="noopener">Google</a>
+        <a class="rc-map apple" href="${appleMapUrl(r.name)}" target="_blank" rel="noopener">Apple</a>
+        <div class="rc-map copy" data-name="${r.name.replace(/"/g,'&quot;')}">複製店名</div>
+      </div>
     `;
     wrap.appendChild(el);
   });
@@ -562,6 +575,29 @@ document.getElementById("rsInput").addEventListener("input", (e)=>{
 document.getElementById("geoRefresh").addEventListener("click", ()=>{
   userPos = null;
   renderRestaurants(document.getElementById("rsInput").value);
+});
+document.getElementById("restList").addEventListener("click", async (e)=>{
+  const btn = e.target.closest(".rc-map.copy");
+  if(!btn) return;
+  const name = btn.dataset.name;
+  try{
+    await navigator.clipboard.writeText(name);
+  }catch(err){
+    // Clipboard API 不可用時的備援:用暫時的 textarea 選取複製
+    const ta = document.createElement("textarea");
+    ta.value = name;
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand("copy"); }catch(e2){}
+    document.body.removeChild(ta);
+  }
+  const original = btn.textContent;
+  btn.textContent = "已複製 ✓";
+  btn.classList.add("copied");
+  setTimeout(()=>{
+    btn.textContent = original;
+    btn.classList.remove("copied");
+  }, 1500);
 });
 
 // ============================================================

@@ -140,6 +140,10 @@ body::after{
 .rs-input{width:100%;background:var(--bg3);border:2px solid var(--bd2);
   padding:10px 12px;color:var(--text);font-size:15px;font-family:var(--font-px);outline:none}
 .rs-input:focus{border-color:var(--pink);box-shadow:2px 2px 0 var(--pink)}
+.geo-refresh{margin-top:8px;display:inline-block;background:var(--bg4);border:2px solid var(--green);
+  box-shadow:2px 2px 0 var(--green);padding:6px 10px;font-size:11px;color:var(--green);
+  cursor:pointer;font-family:var(--font-en)}
+.geo-refresh:active{box-shadow:none;transform:translate(2px,2px)}
 .rest-list{padding:4px 16px 32px;display:flex;flex-direction:column;gap:10px}
 .rc{background:var(--bg2);border:2px solid var(--bd2);box-shadow:3px 3px 0 rgba(63,240,236,.18);padding:12px 14px;
   display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -147,6 +151,7 @@ body::after{
 .rc-cat{font-size:11px;color:var(--cyan);margin-bottom:4px;font-family:var(--font-en)}
 .rc-hours{font-size:12px;color:var(--t3)}
 .rc-closed{font-size:12px;color:var(--pink);margin-top:2px}
+.rc-dist{font-size:11px;color:var(--green);margin-top:5px;font-family:var(--font-en)}
 .rc-map{flex-shrink:0;background:var(--bg4);border:2px solid var(--pink);box-shadow:2px 2px 0 var(--pink);
   padding:8px 10px;text-decoration:none;font-size:11px;color:var(--pink);white-space:nowrap;font-family:var(--font-en)}
 .rc-map:active{box-shadow:none;transform:translate(2px,2px)}
@@ -194,6 +199,7 @@ body::after{
   <div class="page" id="page-restaurants">
     <div class="restaurant-search">
       <input class="rs-input" id="rsInput" placeholder="搜尋店名或種類...">
+      <div id="geoRefresh" class="geo-refresh">📍 重新定位</div>
     </div>
     <div class="rest-list" id="restList"></div>
   </div>
@@ -438,6 +444,89 @@ function renderItinerary(){
 // ============================================================
 // 店家頁
 // ============================================================
+function mapUrl(name){
+  // 使用 Google 官方文件建議的通用深層連結格式,避免短網址(maps.app.goo.gl)
+  // 在手機瀏覽器/PWA 內嵌環境中常見的跳轉失敗問題
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + " Bangkok Thailand")}`;
+}
+
+// ---- 距離計算:定位 + 地理編碼(OpenStreetMap Nominatim,免金鑰)----
+const GEOCODE_CACHE_KEY = "bkk2026_geocode_cache";
+let userPos = null;
+let geocodeQueue = Promise.resolve();
+
+function haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function getUserLocation(){
+  return new Promise(resolve=>{
+    if(!("geolocation" in navigator)){ resolve(null); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      () => resolve(null),
+      { timeout: 8000, maximumAge: 60000 }
+    );
+  });
+}
+
+// 地理編碼:排隊逐一查詢(Nominatim 限制約1秒1次),查過的結果存 localStorage 永久快取
+function geocodeName(name){
+  const cache = loadState(GEOCODE_CACHE_KEY);
+  if(cache[name]) return Promise.resolve(cache[name]);
+
+  const task = geocodeQueue.then(async ()=>{
+    try{
+      const q = encodeURIComponent(name + ", Bangkok, Thailand");
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${q}`);
+      const data = await res.json();
+      await new Promise(r=>setTimeout(r, 1100)); // 尊重 Nominatim 速率限制
+      if(data && data[0]){
+        const coord = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+        const c = loadState(GEOCODE_CACHE_KEY);
+        c[name] = coord;
+        saveState(GEOCODE_CACHE_KEY, c);
+        return coord;
+      }
+    }catch(e){ /* 忽略單筆查詢失敗 */ }
+    return null;
+  });
+  geocodeQueue = task;
+  return task;
+}
+
+async function fillDistances(list){
+  if(!userPos){
+    userPos = await getUserLocation();
+  }
+  if(!userPos){
+    list.forEach(r=>{
+      const idx = RESTAURANTS.indexOf(r);
+      const el = document.getElementById(`rc-dist-${idx}`);
+      if(el) el.textContent = "📍 需要定位權限才能顯示距離";
+    });
+    return;
+  }
+  list.forEach(async (r)=>{
+    const idx = RESTAURANTS.indexOf(r);
+    const coord = await geocodeName(r.name);
+    const el = document.getElementById(`rc-dist-${idx}`);
+    if(!el) return; // 使用者可能已切換搜尋條件,元素不在了
+    if(!coord){
+      el.textContent = "📍 距離查詢失敗";
+      return;
+    }
+    const km = haversineKm(userPos.lat, userPos.lon, coord.lat, coord.lon);
+    el.textContent = `📍 距離約 ${km.toFixed(1)} 公里`;
+  });
+}
+
 function renderRestaurants(filter=""){
   const wrap = document.getElementById("restList");
   wrap.innerHTML = "";
@@ -450,6 +539,7 @@ function renderRestaurants(filter=""){
     return;
   }
   list.forEach(r=>{
+    const idx = RESTAURANTS.indexOf(r);
     const el = document.createElement("div");
     el.className = "rc";
     el.innerHTML = `
@@ -458,14 +548,20 @@ function renderRestaurants(filter=""){
         <div class="rc-cat">${r.category}</div>
         <div class="rc-hours">🕒 ${r.hours}</div>
         <div class="rc-closed">🚫 ${r.closed}</div>
+        <div class="rc-dist" id="rc-dist-${idx}">📍 計算距離中...</div>
       </div>
-      <a class="rc-map" href="${r.map}" target="_blank" rel="noopener">地圖 / 距離</a>
+      <a class="rc-map" href="${mapUrl(r.name)}" target="_blank" rel="noopener">地圖</a>
     `;
     wrap.appendChild(el);
   });
+  fillDistances(list);
 }
 document.getElementById("rsInput").addEventListener("input", (e)=>{
   renderRestaurants(e.target.value);
+});
+document.getElementById("geoRefresh").addEventListener("click", ()=>{
+  userPos = null;
+  renderRestaurants(document.getElementById("rsInput").value);
 });
 
 // ============================================================

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bangkok 2026">
+<meta name="theme-color" content="#0a0910">
+<title>🛕 曼谷 2026</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+:root{
+  --bg:#0a0910; --bg2:#0f0e1a; --bg3:#151022; --bg4:#1c1630;
+  --bd:#2a2540; --bd2:#3a3560;
+  --text:#e8e6f0; --t2:#c9b8e8; --t3:#8b7fa8; --t4:#544a70;
+  --gold:#f0dba0; --pink:#e8789a; --green:#8fd4a8;
+  --font: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
+  --mono: 'Courier New', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;display:flex;flex-direction:column}
+
+#topbar{
+  background:rgba(10,9,16,.96);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--bd);
+  padding:14px 16px 12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between
+}
+.tb-title{font-size:17px;font-weight:700;color:var(--gold);letter-spacing:.03em}
+.tb-sub{font-size:12px;color:var(--t3);margin-top:2px}
+
+#scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#scroll::-webkit-scrollbar{display:none}
+
+#bnav{
+  background:rgba(10,9,16,.96);backdrop-filter:blur(10px);
+  border-top:1px solid var(--bd);
+  display:flex;flex-shrink:0;
+  padding-bottom:env(safe-area-inset-bottom)
+}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:10px 0 8px;cursor:pointer;color:var(--t4);transition:color .15s}
+.ni.active{color:var(--pink)}
+.ni-icon{font-size:21px;line-height:1}
+.ni-lb{font-size:11px;letter-spacing:.04em}
+
+.page{display:none}
+.page.active{display:block}
+
+/* ---- 天氣卡片 ---- */
+.wx-card{
+  margin:14px 16px;padding:14px 16px;background:var(--bg3);
+  border:1px solid var(--bd);border-radius:10px;
+  display:flex;align-items:center;justify-content:space-between
+}
+.wx-left{display:flex;align-items:center;gap:12px}
+.wx-icon{font-size:34px}
+.wx-temp{font-size:22px;font-weight:700;color:var(--text)}
+.wx-desc{font-size:12px;color:var(--t3);margin-top:2px}
+.wx-right{text-align:right;font-size:12px;color:var(--t3);line-height:1.6}
+.wx-msg{font-size:13px;color:var(--t3);text-align:center;padding:6px 0}
+
+/* ---- 行程 ---- */
+.day-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 16px 12px;flex-wrap:nowrap}
+.day-tabs::-webkit-scrollbar{display:none}
+.dtab{
+  flex-shrink:0;background:var(--bg3);border:1px solid var(--bd);
+  border-radius:8px;padding:7px 12px;font-size:13px;color:var(--t3);
+  cursor:pointer;white-space:nowrap
+}
+.dtab.active{background:#2a1730;border-color:var(--pink);color:var(--pink)}
+
+.day-hdr{padding:4px 16px 12px}
+.dh-t{font-size:19px;color:var(--text);font-weight:700}
+.dh-s{font-size:13px;color:var(--t3);margin-top:3px}
+
+.items-wrap{padding:0 14px 32px;display:flex;flex-direction:column;gap:10px}
+
+.ic{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.ic-top{padding:12px 14px 10px;cursor:pointer}
+.ic-r1{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px}
+.ic-time{font-size:13px;color:var(--gold);font-family:var(--mono);letter-spacing:.03em}
+.ic-cat{font-size:11px;color:var(--t3);background:var(--bg4);border:1px solid var(--bd2);
+  border-radius:4px;padding:1px 7px}
+.ic-title{font-size:16px;color:var(--text);line-height:1.4}
+.ic-body{padding:0 14px 12px;display:flex;flex-direction:column;gap:8px}
+.ic-body.hidden{display:none}
+.blk{border-left:3px solid var(--pink);padding:6px 10px;background:#170f1e;border-radius:0 6px 6px 0;font-size:13px;color:var(--t2);line-height:1.6}
+.blk.transport{border-color:var(--gold);background:#1a1608}
+.blk-lb{font-size:10px;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.must-list{display:flex;flex-direction:column;gap:4px}
+.mi{font-size:13px;color:var(--t2);padding-left:12px;position:relative;line-height:1.5}
+.mi::before{content:'›';position:absolute;left:0;color:var(--pink)}
+.mi b{color:var(--text)}
+.map-btn{display:inline-flex;align-items:center;gap:6px;background:#1a0f24;border:1px solid var(--pink);
+  border-radius:6px;padding:8px 12px;text-decoration:none;font-size:13px;color:var(--pink);width:fit-content}
+.ic-arrow{font-size:13px;color:var(--t4);transition:transform .2s}
+.ic-arrow.open{transform:rotate(180deg);color:var(--pink)}
+.hours-tag{font-size:11px;color:var(--t3);border:1px solid var(--bd2);border-radius:4px;padding:1px 6px}
+
+/* ---- 店家 ---- */
+.restaurant-search{margin:14px 16px 8px}
+.rs-input{width:100%;background:var(--bg3);border:1px solid var(--bd2);border-radius:8px;
+  padding:10px 12px;color:var(--text);font-size:15px;font-family:var(--font);outline:none}
+.rs-input:focus{border-color:var(--pink)}
+.rest-list{padding:4px 16px 32px;display:flex;flex-direction:column;gap:8px}
+.rc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rc-name{font-size:15px;color:var(--text);margin-bottom:4px}
+.rc-cat{font-size:12px;color:var(--t3);margin-bottom:2px}
+.rc-hours{font-size:11px;color:var(--t3)}
+.rc-closed{font-size:11px;color:var(--pink);margin-top:2px}
+.rc-map{flex-shrink:0;background:#1a0f24;border:1px solid var(--pink);border-radius:6px;
+  padding:8px 10px;text-decoration:none;font-size:12px;color:var(--pink);white-space:nowrap}
+
+/* ---- 清單 ---- */
+.chk-page{padding:14px 16px 32px}
+.chk-sec{margin-bottom:22px}
+.chk-sec-t{font-size:14px;color:var(--pink);letter-spacing:.06em;padding-bottom:8px;
+  border-bottom:1px solid var(--bd);margin-bottom:8px;font-weight:700}
+.cr{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd);cursor:pointer}
+.cr:last-child{border-bottom:none}
+.ccb{width:16px;height:16px;border:1px solid var(--bd2);border-radius:4px;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cr.done .ccb{background:var(--pink);border-color:var(--pink)}
+.cr.done .ccb::after{content:'✓';font-size:12px;color:#0a0910;font-weight:700}
+.cr-text{font-size:14px;color:var(--t2);line-height:1.5;flex:1}
+.cr.done .cr-text{text-decoration:line-through;color:var(--t4)}
+.cr-tag{font-size:11px;color:var(--gold);border:1px solid rgba(240,219,160,.3);border-radius:4px;
+  padding:1px 6px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div>
+    <div class="tb-title" id="tbTitle">🛕 曼谷 2026</div>
+    <div class="tb-sub" id="tbSub">09/24 - 09/29 · 六天五夜</div>
+  </div>
+  <div class="tb-sub" id="tbClock" style="text-align:right"></div>
+</div>
+
+<div id="scroll">
+
+  <!-- ===== 行程頁 ===== -->
+  <div class="page active" id="page-itinerary">
+    <div class="wx-card" id="wxCard">
+      <div class="wx-msg">正在取得曼谷即時天氣...</div>
+    </div>
+    <div class="day-tabs" id="dayTabs"></div>
+    <div class="day-hdr" id="dayHdr"></div>
+    <div class="items-wrap" id="dayItems"></div>
+  </div>
+
+  <!-- ===== 店家頁 ===== -->
+  <div class="page" id="page-restaurants">
+    <div class="restaurant-search">
+      <input class="rs-input" id="rsInput" placeholder="搜尋店名或種類...">
+    </div>
+    <div class="rest-list" id="restList"></div>
+  </div>
+
+  <!-- ===== 清單頁 ===== -->
+  <div class="page" id="page-checklist">
+    <div class="chk-page" id="chkPage"></div>
+  </div>
+
+</div>
+
+<div id="bnav">
+  <div class="ni active" data-page="itinerary">
+    <div class="ni-icon">🗓️</div><div class="ni-lb">行程</div>
+  </div>
+  <div class="ni" data-page="restaurants">
+    <div class="ni-icon">🍜</div><div class="ni-lb">店家</div>
+  </div>
+  <div class="ni" data-page="checklist">
+    <div class="ni-icon">✅</div><div class="ni-lb">清單</div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+// ============================================================
+// 狀態
+// ============================================================
+let currentDayIndex = 0;
+const CHECK_STORAGE_KEY = "bkk2026_checklist_state";
+const TASK_STORAGE_KEY = "bkk2026_task_state";
+
+function loadState(key){
+  try{ return JSON.parse(localStorage.getItem(key) || "{}"); }catch(e){ return {}; }
+}
+function saveState(key, obj){
+  try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){}
+}
+
+// ============================================================
+// 導覽切換
+// ============================================================
+document.querySelectorAll(".ni").forEach(ni=>{
+  ni.addEventListener("click", ()=>{
+    document.querySelectorAll(".ni").forEach(n=>n.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    ni.classList.add("active");
+    document.getElementById("page-"+ni.dataset.page).classList.add("active");
+  });
+});
+
+// ============================================================
+// 頂部時鐘
+// ============================================================
+function tickClock(){
+  const now = new Date();
+  const opts = { hour:"2-digit", minute:"2-digit", timeZone: TRIP.timezone };
+  const timeStr = now.toLocaleTimeString("zh-TW", opts);
+  document.getElementById("tbClock").textContent = "曼谷 " + timeStr;
+}
+tickClock();
+setInterval(tickClock, 30000);
+
+// ============================================================
+// 天氣(Open-Meteo,免金鑰)
+// ============================================================
+const WMO = {
+  0:["☀️","晴朗"],1:["🌤️","大致晴朗"],2:["⛅","多雲"],3:["☁️","陰天"],
+  45:["🌫️","有霧"],48:["🌫️","霧淞"],
+  51:["🌦️","毛毛雨"],53:["🌦️","毛毛雨"],55:["🌧️","毛毛雨"],
+  61:["🌧️","小雨"],63:["🌧️","中雨"],65:["🌧️","大雨"],
+  80:["🌦️","陣雨"],81:["🌧️","陣雨"],82:["⛈️","強陣雨"],
+  95:["⛈️","雷雨"],96:["⛈️","雷雨"],99:["⛈️","強烈雷雨"],
+};
+function wmoInfo(code){ return WMO[code] || ["🌡️","—"]; }
+
+async function loadWeather(){
+  const el = document.getElementById("wxCard");
+  try{
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${TRIP.lat}&longitude=${TRIP.lon}`
+      + `&current=temperature_2m,weather_code,relative_humidity_2m`
+      + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`
+      + `&timezone=${encodeURIComponent(TRIP.timezone)}&forecast_days=16`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(!data.current){ throw new Error("no data"); }
+
+    const [icon, desc] = wmoInfo(data.current.weather_code);
+    const temp = Math.round(data.current.temperature_2m);
+    const hum = data.current.relative_humidity_2m;
+
+    // 找出目前選取日期在 daily 陣列中的位置
+    let dayForecastHtml = "";
+    const selDate = ITINERARY[currentDayIndex].date;
+    const idx = data.daily.time.indexOf(selDate);
+    if(idx > -1){
+      const [dIcon, dDesc] = wmoInfo(data.daily.weather_code[idx]);
+      const max = Math.round(data.daily.temperature_2m_max[idx]);
+      const min = Math.round(data.daily.temperature_2m_min[idx]);
+      const rain = data.daily.precipitation_probability_max[idx];
+      dayForecastHtml = `${selDate.slice(5)} ${dIcon} ${min}°-${max}° · 降雨 ${rain}%`;
+    } else {
+      dayForecastHtml = "行程日尚未進入 16 天預報範圍,屆時打開 App 會顯示即時預報";
+    }
+
+    el.innerHTML = `
+      <div class="wx-left">
+        <div class="wx-icon">${icon}</div>
+        <div>
+          <div class="wx-temp">${temp}°C</div>
+          <div class="wx-desc">曼谷即時 · ${desc} · 濕度 ${hum}%</div>
+        </div>
+      </div>
+      <div class="wx-right">${dayForecastHtml}</div>
+    `;
+  }catch(e){
+    el.innerHTML = `<div class="wx-msg">天氣資料暫時無法取得,請檢查網路連線</div>`;
+  }
+}
+
+// ============================================================
+// 行程頁
+// ============================================================
+function renderDayTabs(){
+  const wrap = document.getElementById("dayTabs");
+  wrap.innerHTML = "";
+  ITINERARY.forEach((day, i)=>{
+    const d = document.createElement("div");
+    d.className = "dtab" + (i===currentDayIndex ? " active" : "");
+    d.textContent = day.date.slice(5).replace("-","/") + " " + day.weekday;
+    d.addEventListener("click", ()=>{ currentDayIndex = i; renderAll(); });
+    wrap.appendChild(d);
+  });
+}
+
+function renderDayHeader(){
+  const day = ITINERARY[currentDayIndex];
+  document.getElementById("dayHdr").innerHTML = `
+    <div class="dh-t">${day.title}</div>
+    <div class="dh-s">${day.subtitle}</div>
+  `;
+}
+
+function itemKey(dayIdx, itemIdx){ return `d${dayIdx}_i${itemIdx}`; }
+
+function renderDayItems(){
+  const wrap = document.getElementById("dayItems");
+  wrap.innerHTML = "";
+  const day = ITINERARY[currentDayIndex];
+  const taskState = loadState(TASK_STORAGE_KEY);
+
+  day.items.forEach((item, i)=>{
+    const key = itemKey(currentDayIndex, i);
+    const card = document.createElement("div");
+    card.className = "ic";
+
+    let bodyHtml = "";
+    if(item.transport){
+      bodyHtml += `<div class="blk transport"><div class="blk-lb">交通</div>${item.transport}</div>`;
+    }
+    if(item.note){
+      bodyHtml += `<div class="blk"><div class="blk-lb">小提醒</div>${item.note}</div>`;
+    }
+    if(item.must && item.must.length){
+      bodyHtml += `<div class="blk"><div class="blk-lb">必看重點</div>
+        <div class="must-list">${item.must.map(m=>`<div class="mi"><b>${m.name}</b>${m.note ? " — "+m.note : ""}</div>`).join("")}</div>
+      </div>`;
+    }
+    if(item.map){
+      bodyHtml += `<a class="map-btn" href="${item.map}" target="_blank" rel="noopener">📍 開啟 Google 地圖</a>`;
+    }
+
+    card.innerHTML = `
+      <div class="ic-top">
+        <div class="ic-r1">
+          <span class="ic-time">${item.time}</span>
+          <span class="ic-cat">${item.category}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div class="ic-title">${item.title}${item.hours ? ` <span class="hours-tag">${item.hours}</span>` : ""}</div>
+          <span class="ic-arrow">▾</span>
+        </div>
+      </div>
+      <div class="ic-body hidden">${bodyHtml}</div>
+    `;
+
+    const top = card.querySelector(".ic-top");
+    const body = card.querySelector(".ic-body");
+    const arrow = card.querySelector(".ic-arrow");
+    top.addEventListener("click", ()=>{
+      body.classList.toggle("hidden");
+      arrow.classList.toggle("open");
+    });
+
+    wrap.appendChild(card);
+  });
+}
+
+function renderItinerary(){
+  renderDayTabs();
+  renderDayHeader();
+  renderDayItems();
+  loadWeather();
+}
+
+// ============================================================
+// 店家頁
+// ============================================================
+function renderRestaurants(filter=""){
+  const wrap = document.getElementById("restList");
+  wrap.innerHTML = "";
+  const f = filter.trim().toLowerCase();
+  const list = RESTAURANTS.filter(r =>
+    !f || r.name.toLowerCase().includes(f) || r.category.toLowerCase().includes(f)
+  );
+  if(!list.length){
+    wrap.innerHTML = `<div class="wx-msg">找不到符合的店家</div>`;
+    return;
+  }
+  list.forEach(r=>{
+    const el = document.createElement("div");
+    el.className = "rc";
+    el.innerHTML = `
+      <div>
+        <div class="rc-name">${r.name}</div>
+        <div class="rc-cat">${r.category}</div>
+        <div class="rc-hours">🕒 ${r.hours}</div>
+        <div class="rc-closed">🚫 ${r.closed}</div>
+      </div>
+      <a class="rc-map" href="${r.map}" target="_blank" rel="noopener">地圖 / 距離</a>
+    `;
+    wrap.appendChild(el);
+  });
+}
+document.getElementById("rsInput").addEventListener("input", (e)=>{
+  renderRestaurants(e.target.value);
+});
+
+// ============================================================
+// 清單頁
+// ============================================================
+function renderChecklist(){
+  const wrap = document.getElementById("chkPage");
+  wrap.innerHTML = "";
+  const state = loadState(CHECK_STORAGE_KEY);
+
+  CHECKLIST.forEach((sec, si)=>{
+    const secEl = document.createElement("div");
+    secEl.className = "chk-sec";
+    secEl.innerHTML = `<div class="chk-sec-t">${sec.section}</div>`;
+
+    sec.items.forEach((item, ii)=>{
+      const key = `s${si}_i${ii}`;
+      const done = !!state[key];
+      const row = document.createElement("div");
+      row.className = "cr" + (done ? " done" : "");
+      const tag = item.date || item.area || "";
+      row.innerHTML = `
+        <div class="ccb"></div>
+        <div class="cr-text">${item.text}</div>
+        ${tag ? `<div class="cr-tag">${tag}</div>` : ""}
+      `;
+      row.addEventListener("click", ()=>{
+        const st = loadState(CHECK_STORAGE_KEY);
+        st[key] = !st[key];
+        saveState(CHECK_STORAGE_KEY, st);
+        row.classList.toggle("done");
+      });
+      secEl.appendChild(row);
+    });
+
+    wrap.appendChild(secEl);
+  });
+}
+
+// ============================================================
+// 初始化:自動定位到「今天」對應的行程日(若不在範圍內則顯示第一天)
+// ============================================================
+function findTodayIndex(){
+  const today = new Date().toLocaleDateString("sv-SE", {timeZone: TRIP.timezone}); // yyyy-mm-dd
+  const idx = ITINERARY.findIndex(d => d.date === today);
+  return idx > -1 ? idx : 0;
+}
+
+function renderAll(){
+  renderItinerary();
+  renderRestaurants(document.getElementById("rsInput").value);
+  renderChecklist();
+}
+
+currentDayIndex = findTodayIndex();
+renderAll();
+
+// ============================================================
+// Service Worker 註冊
+// ============================================================
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>

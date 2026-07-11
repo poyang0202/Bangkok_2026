@@ -10,42 +10,74 @@
 <title>🛕 曼谷 2026</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&family=VT323&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a0910; --bg2:#0f0e1a; --bg3:#151022; --bg4:#1c1630;
-  --bd:#2a2540; --bd2:#3a3560;
-  --text:#e8e6f0; --t2:#c9b8e8; --t3:#8b7fa8; --t4:#544a70;
-  --gold:#f0dba0; --pink:#e8789a; --green:#8fd4a8;
-  --font: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", sans-serif;
-  --mono: 'Courier New', monospace;
+  /* ---- cyberpunk 8-bit 配色 ---- */
+  --bg:#08070f; --bg2:#0e0c1a; --bg3:#141227; --bg4:#1b1836;
+  --bd:#2b2650; --bd2:#3d3670;
+  --text:#eae6ff; --t2:#b9aee8; --t3:#7d72b0; --t4:#4a4478;
+  --cyan:#3ff0ec; --pink:#ff3ec4; --purple:#a25bff; --yellow:#f5e663; --green:#5cf2a0;
+  --gold: var(--yellow);
+  --font-px: 'DotGothic16', monospace;      /* 中文用 - 點陣風格 */
+  --font-en: 'Press Start 2P', 'DotGothic16', monospace;   /* 英數用8bit經典字體,中文自動退回點陣字體 */
+  --mono: 'VT323', 'Courier New', monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;display:flex;flex-direction:column}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--font-px);font-size:16px;
+  display:flex;flex-direction:column;position:relative;
+  background-image:
+    linear-gradient(rgba(63,240,236,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63,240,236,.04) 1px, transparent 1px);
+  background-size:24px 24px;
+}
+/* CRT 掃描線疊加 */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
+  background:repeating-linear-gradient(
+    0deg, rgba(0,0,0,.22) 0px, rgba(0,0,0,.22) 1px,
+    transparent 1px, transparent 3px
+  );
+  mix-blend-mode:multiply;
+}
+/* 邊角暈影 */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:998;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+}
 
 #topbar{
-  background:rgba(10,9,16,.96);backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--bd);
+  background:var(--bg2);
+  border-bottom:2px solid var(--cyan);
+  box-shadow:0 2px 0 rgba(63,240,236,.15);
   padding:14px 16px 12px;flex-shrink:0;
   display:flex;align-items:center;justify-content:space-between
 }
-.tb-title{font-size:17px;font-weight:700;color:var(--gold);letter-spacing:.03em}
-.tb-sub{font-size:12px;color:var(--t3);margin-top:2px}
+.tb-title{
+  font-size:12px;font-family:var(--font-en);color:var(--cyan);letter-spacing:.02em;
+  text-shadow:2px 2px 0 var(--pink);line-height:1.6
+}
+.tb-sub{font-size:11px;color:var(--t3);margin-top:6px;font-family:var(--mono);letter-spacing:.02em}
 
 #scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #scroll::-webkit-scrollbar{display:none}
 
 #bnav{
-  background:rgba(10,9,16,.96);backdrop-filter:blur(10px);
-  border-top:1px solid var(--bd);
+  background:var(--bg2);
+  border-top:2px solid var(--cyan);
+  box-shadow:0 -2px 0 rgba(63,240,236,.1);
   display:flex;flex-shrink:0;
   padding-bottom:env(safe-area-inset-bottom)
 }
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
   padding:10px 0 8px;cursor:pointer;color:var(--t4);transition:color .15s}
 .ni.active{color:var(--pink)}
-.ni-icon{font-size:21px;line-height:1}
-.ni-lb{font-size:11px;letter-spacing:.04em}
+.ni-icon{width:22px;height:22px;image-rendering:pixelated}
+.ni-icon svg{width:100%;height:100%;display:block}
+.ni-lb{font-size:10px;letter-spacing:.03em;font-family:var(--font-en)}
 
 .page{display:none}
 .page.active{display:block}
@@ -53,91 +85,94 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16
 /* ---- 天氣卡片 ---- */
 .wx-card{
   margin:14px 16px;padding:14px 16px;background:var(--bg3);
-  border:1px solid var(--bd);border-radius:10px;
+  border:2px solid var(--purple);box-shadow:3px 3px 0 var(--purple);
   display:flex;align-items:center;justify-content:space-between
 }
 .wx-left{display:flex;align-items:center;gap:12px}
-.wx-icon{font-size:34px}
-.wx-temp{font-size:22px;font-weight:700;color:var(--text)}
-.wx-desc{font-size:12px;color:var(--t3);margin-top:2px}
-.wx-right{text-align:right;font-size:12px;color:var(--t3);line-height:1.6}
+.wx-icon{font-size:32px;image-rendering:pixelated}
+.wx-temp{font-size:20px;font-family:var(--font-en);color:var(--cyan)}
+.wx-desc{font-size:12px;color:var(--t3);margin-top:6px}
+.wx-right{text-align:right;font-size:12px;color:var(--t3);line-height:1.7;font-family:var(--mono)}
 .wx-msg{font-size:13px;color:var(--t3);text-align:center;padding:6px 0}
 
 /* ---- 行程 ---- */
-.day-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 16px 12px;flex-wrap:nowrap}
+.day-tabs{display:flex;gap:8px;overflow-x:auto;padding:0 16px 12px;flex-wrap:nowrap}
 .day-tabs::-webkit-scrollbar{display:none}
 .dtab{
-  flex-shrink:0;background:var(--bg3);border:1px solid var(--bd);
-  border-radius:8px;padding:7px 12px;font-size:13px;color:var(--t3);
+  flex-shrink:0;background:var(--bg3);border:2px solid var(--bd2);
+  padding:7px 12px;font-size:12px;color:var(--t3);font-family:var(--font-en);
   cursor:pointer;white-space:nowrap
 }
-.dtab.active{background:#2a1730;border-color:var(--pink);color:var(--pink)}
+.dtab.active{background:var(--bg4);border-color:var(--pink);color:var(--pink);box-shadow:2px 2px 0 var(--pink)}
 
-.day-hdr{padding:4px 16px 12px}
-.dh-t{font-size:19px;color:var(--text);font-weight:700}
-.dh-s{font-size:13px;color:var(--t3);margin-top:3px}
+.day-hdr{padding:4px 16px 14px}
+.dh-t{font-size:18px;color:var(--cyan);font-weight:700;text-shadow:2px 2px 0 rgba(162,91,255,.6)}
+.dh-s{font-size:13px;color:var(--t3);margin-top:5px}
 
-.items-wrap{padding:0 14px 32px;display:flex;flex-direction:column;gap:10px}
+.items-wrap{padding:0 14px 32px;display:flex;flex-direction:column;gap:14px}
 
-.ic{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.ic{background:var(--bg2);border:2px solid var(--bd2);box-shadow:3px 3px 0 rgba(63,240,236,.18);overflow:hidden}
 .ic-top{padding:12px 14px 10px;cursor:pointer}
-.ic-r1{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px}
-.ic-time{font-size:13px;color:var(--gold);font-family:var(--mono);letter-spacing:.03em}
-.ic-cat{font-size:11px;color:var(--t3);background:var(--bg4);border:1px solid var(--bd2);
-  border-radius:4px;padding:1px 7px}
+.ic-r1{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
+.ic-time{font-size:12px;color:var(--yellow);font-family:var(--font-en);letter-spacing:.02em}
+.ic-cat{font-size:10px;color:var(--cyan);background:var(--bg4);border:1px solid var(--cyan);
+  padding:2px 7px;font-family:var(--font-en)}
 .ic-title{font-size:16px;color:var(--text);line-height:1.4}
 .ic-body{padding:0 14px 12px;display:flex;flex-direction:column;gap:8px}
 .ic-body.hidden{display:none}
-.blk{border-left:3px solid var(--pink);padding:6px 10px;background:#170f1e;border-radius:0 6px 6px 0;font-size:13px;color:var(--t2);line-height:1.6}
-.blk.transport{border-color:var(--gold);background:#1a1608}
-.blk-lb{font-size:10px;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.blk{border-left:3px solid var(--pink);padding:6px 10px;background:var(--bg3);font-size:13px;color:var(--t2);line-height:1.6}
+.blk.transport{border-color:var(--yellow);background:#1c1a08}
+.blk-lb{font-size:10px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;font-family:var(--font-en)}
 .must-list{display:flex;flex-direction:column;gap:4px}
 .mi{font-size:13px;color:var(--t2);padding-left:12px;position:relative;line-height:1.5}
-.mi::before{content:'›';position:absolute;left:0;color:var(--pink)}
-.mi b{color:var(--text)}
-.map-btn{display:inline-flex;align-items:center;gap:6px;background:#1a0f24;border:1px solid var(--pink);
-  border-radius:6px;padding:8px 12px;text-decoration:none;font-size:13px;color:var(--pink);width:fit-content}
+.mi::before{content:'▸';position:absolute;left:0;color:var(--pink)}
+.mi b{color:var(--cyan)}
+.map-btn{display:inline-flex;align-items:center;gap:6px;background:var(--bg4);border:2px solid var(--pink);
+  box-shadow:2px 2px 0 var(--pink);padding:8px 12px;text-decoration:none;font-size:12px;color:var(--pink);
+  width:fit-content;font-family:var(--font-en)}
+.map-btn:active{box-shadow:none;transform:translate(2px,2px)}
 .ic-arrow{font-size:13px;color:var(--t4);transition:transform .2s}
 .ic-arrow.open{transform:rotate(180deg);color:var(--pink)}
-.hours-tag{font-size:11px;color:var(--t3);border:1px solid var(--bd2);border-radius:4px;padding:1px 6px}
+.hours-tag{font-size:10px;color:var(--green);border:1px solid var(--green);padding:2px 6px;font-family:var(--font-en)}
 
 /* ---- 店家 ---- */
 .restaurant-search{margin:14px 16px 8px}
-.rs-input{width:100%;background:var(--bg3);border:1px solid var(--bd2);border-radius:8px;
-  padding:10px 12px;color:var(--text);font-size:15px;font-family:var(--font);outline:none}
-.rs-input:focus{border-color:var(--pink)}
-.rest-list{padding:4px 16px 32px;display:flex;flex-direction:column;gap:8px}
-.rc{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;
+.rs-input{width:100%;background:var(--bg3);border:2px solid var(--bd2);
+  padding:10px 12px;color:var(--text);font-size:15px;font-family:var(--font-px);outline:none}
+.rs-input:focus{border-color:var(--pink);box-shadow:2px 2px 0 var(--pink)}
+.rest-list{padding:4px 16px 32px;display:flex;flex-direction:column;gap:10px}
+.rc{background:var(--bg2);border:2px solid var(--bd2);box-shadow:3px 3px 0 rgba(63,240,236,.18);padding:12px 14px;
   display:flex;align-items:center;justify-content:space-between;gap:10px}
-.rc-name{font-size:15px;color:var(--text);margin-bottom:4px}
-.rc-cat{font-size:12px;color:var(--t3);margin-bottom:2px}
-.rc-hours{font-size:11px;color:var(--t3)}
-.rc-closed{font-size:11px;color:var(--pink);margin-top:2px}
-.rc-map{flex-shrink:0;background:#1a0f24;border:1px solid var(--pink);border-radius:6px;
-  padding:8px 10px;text-decoration:none;font-size:12px;color:var(--pink);white-space:nowrap}
+.rc-name{font-size:15px;color:var(--text);margin-bottom:5px}
+.rc-cat{font-size:11px;color:var(--cyan);margin-bottom:4px;font-family:var(--font-en)}
+.rc-hours{font-size:12px;color:var(--t3)}
+.rc-closed{font-size:12px;color:var(--pink);margin-top:2px}
+.rc-map{flex-shrink:0;background:var(--bg4);border:2px solid var(--pink);box-shadow:2px 2px 0 var(--pink);
+  padding:8px 10px;text-decoration:none;font-size:11px;color:var(--pink);white-space:nowrap;font-family:var(--font-en)}
+.rc-map:active{box-shadow:none;transform:translate(2px,2px)}
 
 /* ---- 清單 ---- */
 .chk-page{padding:14px 16px 32px}
-.chk-sec{margin-bottom:22px}
-.chk-sec-t{font-size:14px;color:var(--pink);letter-spacing:.06em;padding-bottom:8px;
-  border-bottom:1px solid var(--bd);margin-bottom:8px;font-weight:700}
+.chk-sec{margin-bottom:24px}
+.chk-sec-t{font-size:13px;color:var(--cyan);letter-spacing:.04em;padding-bottom:8px;
+  border-bottom:2px solid var(--bd2);margin-bottom:10px;font-family:var(--font-en)}
 .cr{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd);cursor:pointer}
 .cr:last-child{border-bottom:none}
-.ccb{width:16px;height:16px;border:1px solid var(--bd2);border-radius:4px;flex-shrink:0;margin-top:2px;
+.ccb{width:18px;height:18px;border:2px solid var(--bd2);flex-shrink:0;margin-top:2px;
   display:flex;align-items:center;justify-content:center;transition:all .15s}
-.cr.done .ccb{background:var(--pink);border-color:var(--pink)}
-.cr.done .ccb::after{content:'✓';font-size:12px;color:#0a0910;font-weight:700}
+.cr.done .ccb{background:var(--pink);border-color:var(--pink);box-shadow:2px 2px 0 rgba(255,62,196,.4)}
+.cr.done .ccb::after{content:'✓';font-size:12px;color:#08070f;font-weight:700}
 .cr-text{font-size:14px;color:var(--t2);line-height:1.5;flex:1}
 .cr.done .cr-text{text-decoration:line-through;color:var(--t4)}
-.cr-tag{font-size:11px;color:var(--gold);border:1px solid rgba(240,219,160,.3);border-radius:4px;
-  padding:1px 6px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.cr-tag{font-size:10px;color:var(--yellow);border:1px solid var(--yellow);
+  padding:1px 6px;flex-shrink:0;margin-top:2px;white-space:nowrap;font-family:var(--font-en)}
 </style>
 </head>
 <body>
 
 <div id="topbar">
   <div>
-    <div class="tb-title" id="tbTitle">🛕 曼谷 2026</div>
+    <div class="tb-title" id="tbTitle">👾 BANGKOK 2026</div>
     <div class="tb-sub" id="tbSub">09/24 - 09/29 · 六天五夜</div>
   </div>
   <div class="tb-sub" id="tbClock" style="text-align:right"></div>
@@ -172,13 +207,48 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16
 
 <div id="bnav">
   <div class="ni active" data-page="itinerary">
-    <div class="ni-icon">🗓️</div><div class="ni-lb">行程</div>
+    <div class="ni-icon">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges">
+        <rect x="2" y="2" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1"/>
+        <rect x="2" y="2" width="12" height="3" fill="currentColor"/>
+        <rect x="4" y="0" width="1" height="3" fill="currentColor"/>
+        <rect x="11" y="0" width="1" height="3" fill="currentColor"/>
+        <rect x="4" y="8" width="2" height="2" fill="currentColor"/>
+        <rect x="7" y="8" width="2" height="2" fill="currentColor"/>
+        <rect x="10" y="8" width="2" height="2" fill="currentColor"/>
+        <rect x="4" y="11" width="2" height="2" fill="currentColor"/>
+        <rect x="7" y="11" width="2" height="2" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="ni-lb">行程</div>
   </div>
   <div class="ni" data-page="restaurants">
-    <div class="ni-icon">🍜</div><div class="ni-lb">店家</div>
+    <div class="ni-icon">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges">
+        <rect x="2" y="7" width="12" height="2" fill="currentColor"/>
+        <rect x="3" y="9" width="10" height="2" fill="currentColor"/>
+        <rect x="4" y="11" width="8" height="1" fill="currentColor"/>
+        <rect x="3" y="3" width="1" height="4" fill="currentColor"/>
+        <rect x="6" y="3" width="1" height="4" fill="currentColor"/>
+        <rect x="12" y="3" width="1" height="5" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="ni-lb">店家</div>
   </div>
   <div class="ni" data-page="checklist">
-    <div class="ni-icon">✅</div><div class="ni-lb">清單</div>
+    <div class="ni-icon">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges">
+        <rect x="3" y="2" width="10" height="13" fill="none" stroke="currentColor" stroke-width="1"/>
+        <rect x="6" y="1" width="4" height="2" fill="currentColor"/>
+        <rect x="5" y="8" width="1" height="1" fill="currentColor"/>
+        <rect x="6" y="9" width="1" height="1" fill="currentColor"/>
+        <rect x="7" y="8" width="3" height="1" fill="currentColor"/>
+        <rect x="7" y="6" width="1" height="1" fill="currentColor"/>
+        <rect x="8" y="5" width="3" height="1" fill="currentColor"/>
+        <rect x="5" y="11" width="6" height="1" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="ni-lb">清單</div>
   </div>
 </div>
 

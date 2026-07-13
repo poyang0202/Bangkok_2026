@@ -50,7 +50,7 @@ const ITINERARY = [
     date: "2026-09-25",
     weekday: "週五",
     title: "古廟巡禮+泰服體驗",
-    subtitle: "鄭王廟、ICONSIAM暹羅天地","湄南河郵輪體驗"
+    subtitle: "鄭王廟、ICONSIAM暹羅天地、湄南河郵輪體驗",
     items: [
       {
         time: "08:00",
@@ -94,7 +94,7 @@ const ITINERARY = [
     date: "2026-09-26",
     weekday: "週六",
     title: "皇宮巡禮+老城區漫遊",
-    subtitle: "曼谷大皇宮,玉佛寺,老城區"
+    subtitle: "曼谷大皇宮,玉佛寺,老城區",
     items: [
       {
         time: "09:00",
@@ -105,12 +105,12 @@ const ITINERARY = [
         must: [
           { name: "玉佛寺主殿", note: "必須拖鞋，主殿禁止拍照" },
         ],
-        note: "服裝規定嚴格:不可穿短褲、無袖上衣、拖鞋,建議長褲/長裙,現場有租借罩衫服務但會排隊。,
+        note: "服裝規定嚴格:不可穿短褲、無袖上衣、拖鞋,建議長褲/長裙,現場有租借罩衫服務但會排隊。",
         map: "https://maps.app.goo.gl/4bjD8nkMxyhvyoLW7",
       },
       {
         time: "12:00",
-        title: "EmSphere Mall,
+        title: "EmSphere Mall",
         category: "餐飲",
         note: "待查。",
       },
@@ -146,13 +146,13 @@ const ITINERARY = [
         time: "14:00",
         title: "曼谷新景點 - Café Amazon Experience Flagship Store Ari",
         category: "待訂",
-        must: [{name: "Café Amazon Experience Flagship Store Ari", note:"6層樓美術館般咖啡廳"}],
-      },      
+        must: [{ name: "Café Amazon Experience Flagship Store Ari", note: "6層樓美術館般咖啡廳" }],
+      },
       {
         time: "17:00",
         title: "晚餐",
         category: "餐飲",
-        must: [{name: "Burapa Eastern Thai Cuisine & Bar by Sri Trat", note:"Central World附近"}],
+        must: [{ name: "Burapa Eastern Thai Cuisine & Bar by Sri Trat", note: "Central World附近" }],
       },
       {
         time: "19:00",

@@ -43,7 +43,7 @@ const ITINERARY = [
         title: "抵達飯店、辦理入住、休息",
         category: "住宿",
         hotel: "GM Estate Hotel and Executive Apartments Sukhumvit 20",
-        map: "55 Sukhumvit 20 Alley, Khlong Tan, Khlong Toei, Bangkok 10110泰國",
+        map: "https://maps.app.goo.gl/Bq6K76NXSQXH1UWv5",
       },
     ],
   },

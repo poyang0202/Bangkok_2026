@@ -42,7 +42,8 @@ const ITINERARY = [
         time: "23:30",
         title: "抵達飯店、辦理入住、休息",
         category: "住宿",
-        note: "第一天不安排行程,好好休息,養精蓄銳準備明天古城區踩點。",
+        hotel: "GM Estate Hotel and Executive Apartments Sukhumvit 20",
+        map: "55 Sukhumvit 20 Alley, Khlong Tan, Khlong Toei, Bangkok 10110泰國",
       },
     ],
   },
@@ -50,7 +51,7 @@ const ITINERARY = [
     date: "2026-09-25",
     weekday: "週五",
     title: "古廟巡禮+泰服體驗",
-    subtitle: "鄭王廟、ICONSIAM暹羅天地、湄南河郵輪體驗",
+    subtitle: "鄭王廟、ICONSIAM暹羅天地","湄南河郵輪體驗"
     items: [
       {
         time: "08:00",
@@ -58,9 +59,7 @@ const ITINERARY = [
         category: "景點",
         hours: "08:00-18:00",
         transport: "🚕 飯店搭車約 20-30 分鐘",
-        must: [
-          { name: "由數百萬片陶瓷與貝殼拼貼出的82公尺主塔", note: "泰國艾菲爾鐵塔之稱" },
-        ],
+        must: [{ name: "泰國艾菲爾鐵塔之稱", note: "由數百萬片陶瓷與貝殼拼貼出的82公尺主塔" },],
         note: "服裝規定嚴格:不可穿短褲、無袖上衣、拖鞋,建議長褲/長裙,現場有租借罩衫服務但會排隊。門票約 200 泰銖。",
         map: "https://maps.app.goo.gl/NYwhhCeSak3TrxwYA",
       },
@@ -98,28 +97,42 @@ const ITINERARY = [
     items: [
       {
         time: "09:00",
+        title: "EmSphere Malll",
+        category: "景點",
+        note: "自由行程，可在飯店游泳或是去 EmSphere逛街",
+      },
+      {
+        time: "12:00",
+        title: "午餐",
+        category: "餐飲",
+       must: [{ name: "榮泰米粉湯", note: "米其林推薦" }],
+       map: "https://maps.app.goo.gl/kkrC1FHmdFE6Q2Mb9",
+       must: [{ name: "Thong Smith (EmQuartier)", note: "船麵" }],
+       map: "https://maps.app.goo.gl/X6x1AGM3ZMoBJiLeA"
+      },
+      {
+        time: "14:00",
         title: "曼谷大皇宮+玉佛寺",
         category: "景點",
         hours: "08:30-15:30",
         transport: "🚕飯店搭車20-30分鐘 ",
-        must: [
-          { name: "玉佛寺主殿", note: "必須拖鞋，主殿禁止拍照" },
-        ],
+        must: [{ name: "玉佛寺主殿", note: "必須拖鞋，主殿禁止拍照" },],
         note: "服裝規定嚴格:不可穿短褲、無袖上衣、拖鞋,建議長褲/長裙,現場有租借罩衫服務但會排隊。",
         map: "https://maps.app.goo.gl/4bjD8nkMxyhvyoLW7",
       },
       {
-        time: "12:00",
-        title: "EmSphere Mall",
-        category: "餐飲",
-        note: "待查。",
+        time: "16:00",
+        title: "放鬆massage / SPA",
+        category: "自由",
+        note: "按摩等吃飯。",
       },
       {
-        time: "17:00",
-        title: "老城區小店",
-        category: "自由",
-        note: "待查。",
-      },
+        time: "18:00",
+        title: "晚餐 - 鄭王廟夜景河邊餐廳",
+        category: "餐飲",
+        must: [{ name: "Supanniga Eating Room Tha Tien", note: "河景餐廳看鄭王廟+日落" }],
+        map: "https://maps.app.goo.gl/N2tZXwvuiobxZNhK7",
+      },     
     ],
   },
   {
@@ -146,13 +159,13 @@ const ITINERARY = [
         time: "14:00",
         title: "曼谷新景點 - Café Amazon Experience Flagship Store Ari",
         category: "待訂",
-        must: [{ name: "Café Amazon Experience Flagship Store Ari", note: "6層樓美術館般咖啡廳" }],
-      },
+        must: [{name: "Café Amazon Experience Flagship Store Ari", note:"6層樓美術館般咖啡廳"}],
+      },      
       {
         time: "17:00",
         title: "晚餐",
         category: "餐飲",
-        must: [{ name: "Burapa Eastern Thai Cuisine & Bar by Sri Trat", note: "Central World附近" }],
+        must: [{name: "Burapa Eastern Thai Cuisine & Bar by Sri Trat", note:"Central World附近"}],
       },
       {
         time: "19:00",
@@ -165,17 +178,17 @@ const ITINERARY = [
   {
     date: "2026-09-28",
     weekday: "週一",
-    title: "待排",
-    subtitle: "待排",
+    title: "輕鬆Last Day",
+    subtitle: "備用天,可自由調整行程,或是購物、按摩、SPA",
     items: [
       {
         time: "09:00",
-        title: "四面佛 Erawan Shrine",
-        category: "景點",
-        hours: "06:00-23:00,全年無休",
-        transport: "🚇 BTS 至 Chit Lom 站,出站即達",
-        note: "香火鼎盛的著名景點,現場可購買花環、香、蠟燭參拜,尊重當地信仰、輕聲細語。",
-        map: "https://www.google.com/maps/search/?api=1&query=Erawan+Shrine+Bangkok",
+        title: "Coffee Break",
+        category: "餐飲",
+        hours: "08:00-16:00",
+        transport: "🚕飯店搭車20-30分鐘",
+        must: [{name: "三屆咖啡冠軍Athip Archalerttrakool創立", note:"可頌必吃！"}],
+        map: "https://maps.app.goo.gl/iPqasFwYnz46n3he8",
       },
       {
         time: "10:00",
